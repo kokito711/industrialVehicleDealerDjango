@@ -33,6 +33,24 @@ def validate_user(user):
 def create_new_user(body):
     user = json.loads(body)
     validate_user(user)
-    new_user = User(user['userCode'], user['name'], user['surnames'], user['pwd'])
-    new_user.save()
-    return to_json_dict(new_user)
+    if not User.objects.filter(user_code=user['userCode']).exists():
+        new_user = User(user['userCode'], user['name'], user['surnames'], user['pwd'])
+        new_user.save()
+        return to_json_dict(new_user)
+    else:
+        raise UserNotValidException("User already exists")
+
+
+def get_user(body):
+    user = json.loads(body)
+    if User.objects.filter(user_code=user['userCode']).exists():
+        user = User.objects.filter(user_code=user['userCode']).get()
+        return to_json_dict(user)
+    return None
+
+
+def get_user_by_id(user_code):
+    if User.objects.filter(user_code=user_code).exists():
+        user = User.objects.filter(user_code=user_code).get()
+        return to_json_dict(user)
+    return None
